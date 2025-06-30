@@ -346,17 +346,11 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    // Add student totals to processed data
-    processedData.push({
-      Student: '',
-      Teacher: '',
-      Event: '',
-      Place: '',
-      Proficiency: '',
-      Points: '',
-    });
+    // Create final data array with proper order
+    const finalProcessedData: any[] = [];
 
-    processedData.push({
+    // 1. Add student totals first
+    finalProcessedData.push({
       Student: 'STUDENT TOTALS:',
       Teacher: '',
       Event: '',
@@ -366,7 +360,7 @@ export async function POST(req: NextRequest) {
     });
 
     studentTotals.forEach((total, student) => {
-      processedData.push({
+      finalProcessedData.push({
         Student: student,
         Teacher: '',
         Event: '',
@@ -376,8 +370,8 @@ export async function POST(req: NextRequest) {
       });
     });
 
-    // Add teacher totals to processed data
-    processedData.push({
+    // 2. Add teacher totals
+    finalProcessedData.push({
       Student: '',
       Teacher: '',
       Event: '',
@@ -386,7 +380,7 @@ export async function POST(req: NextRequest) {
       Points: '',
     });
 
-    processedData.push({
+    finalProcessedData.push({
       Student: 'TEACHER TOTALS:',
       Teacher: '',
       Event: '',
@@ -396,7 +390,7 @@ export async function POST(req: NextRequest) {
     });
 
     teacherTotals.forEach((total, teacher) => {
-      processedData.push({
+      finalProcessedData.push({
         Student: '',
         Teacher: teacher,
         Event: '',
@@ -406,9 +400,8 @@ export async function POST(req: NextRequest) {
       });
     });
 
-    // Add Amateur Couples section if there are any entries
+    // 3. Add Amateur Couples totals (if any)
     if (processedDataAmateurCouples.length > 0) {
-      // Calculate totals for Amateur Couples
       const amateurCoupleTotals = new Map<string, number>();
 
       processedDataAmateurCouples.forEach((entry) => {
@@ -419,8 +412,7 @@ export async function POST(req: NextRequest) {
         );
       });
 
-      // Add Amateur Couples entries
-      processedData.push({
+      finalProcessedData.push({
         Student: '',
         Teacher: '',
         Event: '',
@@ -429,31 +421,7 @@ export async function POST(req: NextRequest) {
         Points: '',
       });
 
-      processedData.push({
-        Student: 'AMATEUR COUPLES ENTRIES:',
-        Teacher: '',
-        Event: '',
-        Place: '',
-        Proficiency: '',
-        Points: '',
-      });
-
-      // Add all AC entries
-      processedDataAmateurCouples.forEach((entry) => {
-        processedData.push(entry);
-      });
-
-      // Add Amateur Couples totals
-      processedData.push({
-        Student: '',
-        Teacher: '',
-        Event: '',
-        Place: '',
-        Proficiency: '',
-        Points: '',
-      });
-
-      processedData.push({
+      finalProcessedData.push({
         Student: 'AMATEUR COUPLES TOTALS:',
         Teacher: '',
         Event: '',
@@ -464,7 +432,7 @@ export async function POST(req: NextRequest) {
 
       amateurCoupleTotals.forEach((total, couple) => {
         const [student, teacher] = couple.split('/');
-        processedData.push({
+        finalProcessedData.push({
           Student: student,
           Teacher: teacher,
           Event: '',
@@ -473,11 +441,60 @@ export async function POST(req: NextRequest) {
           Points: total,
         });
       });
+
+      // 4. Add Amateur Couples entries
+      finalProcessedData.push({
+        Student: '',
+        Teacher: '',
+        Event: '',
+        Place: '',
+        Proficiency: '',
+        Points: '',
+      });
+
+      finalProcessedData.push({
+        Student: 'AMATEUR COUPLES ENTRIES:',
+        Teacher: '',
+        Event: '',
+        Place: '',
+        Proficiency: '',
+        Points: '',
+      });
+
+      processedDataAmateurCouples.forEach((entry) => {
+        finalProcessedData.push(entry);
+      });
     }
+
+    // 5. Add other entries (main competition entries)
+    finalProcessedData.push({
+      Student: '',
+      Teacher: '',
+      Event: '',
+      Place: '',
+      Proficiency: '',
+      Points: '',
+    });
+
+    finalProcessedData.push({
+      Student: 'MAIN COMPETITION ENTRIES:',
+      Teacher: '',
+      Event: '',
+      Place: '',
+      Proficiency: '',
+      Points: '',
+    });
+
+    // Add all main entries (excluding "Total :" entries)
+    processedData.forEach((entry) => {
+      if (entry.Student !== 'Total :') {
+        finalProcessedData.push(entry);
+      }
+    });
 
     // Generate CSV
     const csvHeader = 'Student,Teacher,Event,Place,Proficiency,Points\n';
-    const csvRows = processedData
+    const csvRows = finalProcessedData
       .map(
         (row) =>
           `"${row.Student}","${row.Teacher}","${row.Event}","${row.Place}","${row.Proficiency}",${row.Points}`
