@@ -1,4 +1,4 @@
 {
-  "/page": "app/page.js",
-  "/api/process-pdf/route": "app/api/process-pdf/route.js"
+  "/_not-found/page": "app/_not-found/page.js",
+  "/calendar/page": "app/calendar/page.js"
 }
