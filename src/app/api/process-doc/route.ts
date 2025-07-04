@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Docxtemplater from 'docxtemplater';
+// import Docxtemplater from 'docxtemplater';
 import PizZip from 'pizzip';
 
 export const runtime = 'nodejs'; // Specify Node.js runtime
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
       // Parse paragraphs and preserve line breaks
       const paragraphMatches =
         xmlContent.match(/<w:p[^>]*>(.*?)<\/w:p>/g) || [];
-      let paragraphs = [];
+      let paragraphs: string[] = [];
 
       for (const paragraphMatch of paragraphMatches) {
         const textMatches =
@@ -136,7 +136,7 @@ export async function POST(req: NextRequest) {
 
           // Find place/proficiency line (format: "1 [93.0]" or just "1")
           const placeLine = lines[j];
-          const placeMatch = placeLine.match(/^(\d+)(?:\s*\[(\d+\.?\d*)\])?$/);
+          const placeMatch = placeLine.match(/^([*]?[A-Za-z0-9]+)(?:\s*\[(\d+\.?\d*)\])?$/);
 
           if (placeMatch) {
             place = placeMatch[1];
